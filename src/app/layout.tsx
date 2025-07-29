@@ -1,10 +1,10 @@
 // src/app/layout.tsx
-import "./globals.css";
-import { ReactNode } from "react";
+import '../styles/globals.css'; 
+import { ReactNode } from 'react';
 
 export const metadata = {
-  title: "Doctor Appointment App",
-  description: "Find and book appointments with doctors",
+  title: 'Doctor Appointment App',
+  description: 'Book appointments with doctors online',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

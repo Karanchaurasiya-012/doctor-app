@@ -1,36 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation"; // 🔁 Add this for navigation
+import { useRouter } from "next/navigation";
 
 export default function OTPVerification() {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const [timer, setTimer] = useState(60);
-  const router = useRouter(); // 🔁 For page redirect
+  const router = useRouter();
 
+  // ✅ Handle OTP input changes
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return; // only allow single digits
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // auto move to next box
+    // auto move to next input
     if (value && index < 3) {
       inputsRef.current[index + 1]?.focus();
     }
   };
 
+  // ⏱ Countdown Timer
   useEffect(() => {
     if (timer === 0) return;
-    const interval = setInterval(() => setTimer(t => t - 1), 1000);
+    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timer]);
 
+  // 🔐 OTP Verification Logic
   const handleVerify = () => {
     const enteredOtp = otp.join("");
     if (enteredOtp === "1234") {
       alert("✅ OTP Verified!");
+      // router.push("/dashboard"); // enable this after deployment
     } else {
       alert("❌ Incorrect OTP");
     }
@@ -45,12 +49,14 @@ export default function OTPVerification() {
           Code has been sent to +91 111 ******99
         </p>
 
-        {/* OTP Inputs */}
+        {/* 🔢 OTP Inputs */}
         <div className="flex justify-between gap-2 mb-4">
           {otp.map((digit, idx) => (
             <input
               key={idx}
-              ref={(el) => (inputsRef.current[idx] = el)}
+              ref={(el) => {
+                inputsRef.current[idx] = el;
+              }}
               value={digit}
               onChange={(e) => handleChange(idx, e.target.value)}
               maxLength={1}
@@ -59,7 +65,7 @@ export default function OTPVerification() {
           ))}
         </div>
 
-        {/* Countdown */}
+        {/* 🔁 Countdown */}
         <p className="text-sm text-gray-500 text-center mb-4">
           Resend code in{" "}
           <span className="text-blue-500 font-medium">{timer}s</span>

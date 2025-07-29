@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image"; // Added comment to trigger re-deployment
+import ImageWithFallback from "../../../components/ImageWithFallback";
 
 type Doctor = {
   id: number;
@@ -41,7 +41,7 @@ export default async function DoctorDetail({ params }: Props) {
 
       <div className="p-4 space-y-4">
         <div className="bg-white rounded-xl shadow-md p-4 flex items-center space-x-4">
-          <Image
+          <ImageWithFallback
             src={doctor.image}
             alt={doctor.name}
             width={80}

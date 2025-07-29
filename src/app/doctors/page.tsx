@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import Image from "next/image";
+import ImageWithFallback from "../../components/ImageWithFallback";
 
 // ✅ Define Doctor type
 type Doctor = {
@@ -18,17 +18,14 @@ type Doctor = {
 
 // ✅ DoctorCard component (Reusable)
 function DoctorCard({ doctor }: { doctor: Doctor }) {
-  const [imageError, setImageError] = useState(false);
-
   return (
     <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
-      <Image
-        src={imageError ? "/placeholder-doctor.png" : doctor.image}
+      <ImageWithFallback
+        src={doctor.image}
         alt={doctor.name}
         width={80}
         height={80}
         className="w-20 h-20 rounded-xl object-cover"
-        onError={() => setImageError(true)}
       />
 
       <div className="ml-4 flex-1">
@@ -81,7 +78,7 @@ export default function DoctorsPage() {
             <p className="text-sm text-gray-500">📍 Dombivli, Mumbai</p>
           </div>
           <div className="relative">
-            <Image
+            <ImageWithFallback
               src="https://randomuser.me/api/portraits/women/44.jpg"
               width={40}
               height={40}

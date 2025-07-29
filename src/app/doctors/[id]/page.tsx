@@ -1,8 +1,8 @@
-// src/app/doctors/[id]/page.tsx (✅ Server Component — no "use client")
-
+// ✅ Server Component — no "use client"
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Doctor = {
   id: number;
@@ -10,6 +10,16 @@ type Doctor = {
   specialty: string;
   image: string;
 };
+
+// ✅ Static site generation (pre-build each doctor page)
+export async function generateStaticParams() {
+  const res = await fetch("https://json-backend-8zn4.onrender.com/doctors");
+  const doctors: Doctor[] = await res.json();
+
+  return doctors.map((doctor) => ({
+    id: doctor.id.toString(),
+  }));
+}
 
 async function getDoctor(id: string): Promise<Doctor | null> {
   const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`, {
@@ -43,9 +53,11 @@ export default async function DoctorDetail({
       <div className="p-4 space-y-4">
         {/* Doctor Card */}
         <div className="bg-white rounded-xl shadow-md p-4 flex items-center space-x-4">
-          <img
+          <Image
             src={doctor.image}
             alt={doctor.name}
+            width={80}
+            height={80}
             className="w-20 h-20 rounded-xl object-cover"
           />
           <div>

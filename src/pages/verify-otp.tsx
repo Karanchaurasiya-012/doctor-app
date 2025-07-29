@@ -31,7 +31,6 @@ export default function OTPVerification() {
     const enteredOtp = otp.join("");
     if (enteredOtp === "1234") {
       alert("✅ OTP Verified!");
-      router.push("/dashboard"); // 🚀 Redirect after success
     } else {
       alert("❌ Incorrect OTP");
     }

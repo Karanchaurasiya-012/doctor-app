@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 
 type Doctor = {
@@ -13,11 +14,41 @@ type Doctor = {
   image: string;
 };
 
+function DoctorCard({ doctor }: { doctor: Doctor }) {
+  return (
+    <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
+      <img
+        src={doctor.image}
+        alt={doctor.name}
+        className="w-20 h-20 rounded-xl object-cover"
+      />
+
+      <div className="ml-4 flex-1">
+        <h3 className="font-bold text-lg">{doctor.name}</h3>
+        <p className="text-blue-500 text-sm">{doctor.specialty}</p>
+
+        <p className="mt-1 inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-md">
+          {doctor.availableToday ? "Available today" : "Not available"}
+        </p>
+
+        <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+          {doctor.description}
+        </p>
+
+        <p className="text-xs bg-gray-100 text-gray-700 px-2 py-1 inline-block rounded mt-2">
+          {doctor.timing}
+        </p>
+      </div>
+
+      <Heart className="text-gray-400 ml-2" />
+    </div>
+  );
+}
+
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
-    // Replace with your real backend later
     fetch("https://json-backend-8zn4.onrender.com/doctors")
       .then((res) => res.json())
       .then((data) => setDoctors(data));
@@ -44,7 +75,7 @@ export default function DoctorsPage() {
           </div>
         </div>
 
-        {/* Search */}
+        {/* Search Bar */}
         <input
           type="text"
           placeholder="Search Doctors"
@@ -54,36 +85,10 @@ export default function DoctorsPage() {
 
       {/* Doctor List */}
       <div className="mt-4 space-y-4 px-4">
-        {doctors.map((doc) => (
-          <div
-            key={doc.id}
-            className="flex border rounded-2xl p-4 items-center shadow-sm"
-          >
-            <img
-              src={doc.image}
-              alt={doc.name}
-              className="w-20 h-20 rounded-xl object-cover"
-            />
-
-            <div className="ml-4 flex-1">
-              <h3 className="font-bold text-lg">{doc.name}</h3>
-              <p className="text-blue-500 text-sm">{doc.specialty}</p>
-
-              <p className="mt-1 inline-block bg-green-100 text-green-600 text-xs px-2 py-1 rounded-md">
-                {doc.availableToday ? "Available today" : "Not available"}
-              </p>
-
-              <p className="text-sm text-gray-500 mt-1 line-clamp-1">
-                {doc.description}
-              </p>
-
-              <p className="text-xs bg-gray-100 text-gray-700 px-2 py-1 inline-block rounded mt-2">
-                {doc.timing}
-              </p>
-            </div>
-
-            <Heart className="text-gray-400 ml-2" />
-          </div>
+        {doctors.map((doctor) => (
+          <Link href={`/doctors/${doctor.id}`} key={doctor.id}>
+            <DoctorCard doctor={doctor} />
+          </Link>
         ))}
       </div>
 

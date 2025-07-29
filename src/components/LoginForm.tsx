@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // ⬅️ for redirect
+import { useRouter } from "next/navigation";
 
 type FormData = {
   identifier: string;
@@ -18,7 +18,7 @@ export default function LoginForm() {
   } = useForm<FormData>();
 
   const [loginError, setLoginError] = useState("");
-  const router = useRouter(); // ⬅️ init router
+  const router = useRouter();
 
   const onSubmit = async (data: FormData) => {
     const { identifier, password } = data;
@@ -26,7 +26,7 @@ export default function LoginForm() {
     const isEmail = identifier.includes("@");
     const field = isEmail ? "email" : "mobile";
 
-    const url = `http://localhost:4000/users?${field}=${identifier}&password=${password}`;
+    const url = `https://json-backend-8zn4.onrender.com/users?${field}=${identifier}&password=${password}`;
 
     try {
       const res = await fetch(url);

@@ -34,7 +34,7 @@ export default function OTPVerification() {
     const enteredOtp = otp.join("");
     if (enteredOtp === "1234") {
       alert("✅ OTP Verified!");
-      // router.push("/dashboard"); // enable this after deployment
+      router.push("/doctors"); // enable this after deployment
     } else {
       alert("❌ Incorrect OTP");
     }

@@ -1,10 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "json-backend-8zn4.onrender.com", // doctor profile images
-      "img.icons8.com",                 // any icons
-      "randomuser.me",                 // user profile image
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "json-backend-8zn4.onrender.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "img.icons8.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

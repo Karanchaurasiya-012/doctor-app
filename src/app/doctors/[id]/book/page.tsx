@@ -14,13 +14,11 @@ type Doctor = {
 export default function BookAppointmentPage() {
   const params = useParams();
 
-  // Handle case where params might be null or undefined
   if (!params || !params.id) {
-    return <p className="text-center mt-10">Loading...</p>; // Or a more robust loading/error state
+    return <p className="text-center mt-10">Loading...</p>;
   }
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
   const [doctor, setDoctor] = useState<Doctor | null>(null);
 
   useEffect(() => {
@@ -41,62 +39,74 @@ export default function BookAppointmentPage() {
   if (!doctor) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-white p-4 space-y-4">
-      {/* Doctor Info */}
-      <div className="text-center">
-        <div className="mx-auto w-24 h-24 relative">
+    <div className="min-h-screen bg-white px-5 py-6 max-w-md mx-auto">
+      {/* Top Section */}
+      <div className="flex flex-col items-center text-center">
+        <div className="w-28 h-28 relative rounded-full overflow-hidden border-4 border-white shadow-md">
           <Image
             src={doctor.image}
             alt={doctor.name}
             fill
-            className="rounded-full object-cover"
+            className="object-cover"
           />
         </div>
-        <h2 className="text-xl font-bold mt-3">{doctor.name}</h2>
-        <p className="text-sm text-gray-500">{doctor.specialty}</p>
-        <p className="text-sm text-gray-500">The Wiscon Hospital in California, US</p>
+        <h1 className="mt-4 text-xl font-semibold">{doctor.name}</h1>
+        <p className="text-blue-600 text-sm">{doctor.specialty}</p>
+        <p className="text-gray-500 text-sm">The Wiscon Hospital in California, US</p>
       </div>
 
       {/* Stats */}
-      <div className="flex justify-around text-center text-sm text-gray-600">
+      <div className="flex justify-around mt-6 text-center text-sm text-gray-600">
         <div>
-          <p className="font-bold text-lg">5,000+</p>
+          <p className="text-lg font-bold">5,000+</p>
           <p>Patients</p>
         </div>
         <div>
-          <p className="font-bold text-lg">10+</p>
-          <p>Years Exp</p>
+          <p className="text-lg font-bold">10+</p>
+          <p>Years exper..</p>
         </div>
         <div>
-          <p className="font-bold text-lg">4.8</p>
+          <p className="text-lg font-bold">4.8</p>
           <p>Rating</p>
         </div>
       </div>
 
-      {/* Details */}
-      <div className="space-y-2 text-sm">
-        <h3 className="font-semibold text-base">About Me</h3>
-        <p>
-          Dr. {doctor.name} is a leading Immunologist specialist in Christ Hospital, London.
-          She has received numerous awards for excellence in the medical field and is
-          available for private consultations.
-        </p>
+      {/* About Section */}
+      <div className="mt-6 space-y-4 text-sm">
+        <div>
+          <h3 className="font-semibold text-base mb-1">About Me</h3>
+          <p className="text-gray-700 leading-relaxed">
+            Dr. {doctor.name} is the top most Immunologist specialist in Christ Hospital at London.
+            She achieved several awards for her wonderful contribution in medical field.
+            She is available for private consultation.
+          </p>
+        </div>
 
-        <h3 className="font-semibold mt-4">Qualification</h3>
-        <p>Degree: MBBS, Sydney College & University</p>
+        {/* Qualification */}
+        <div>
+          <h3 className="font-semibold text-base mb-1">Qualification</h3>
+          <p className="text-gray-700">Degree: MBBS, Sydney College and University</p>
+        </div>
 
-        <h3 className="font-semibold mt-4">Service and Specialization</h3>
-        <p>Service: Medicare</p>
-        <p>Specialization: {doctor.specialty}</p>
+        {/* Service */}
+        <div>
+          <h3 className="font-semibold text-base mb-1">Service and Specialization</h3>
+          <p className="text-gray-700">Service: Medicare</p>
+          <p className="text-gray-700">Specialization: {doctor.specialty}</p>
+        </div>
 
-        <h3 className="font-semibold mt-4">Consulting Availability</h3>
-        <p>Monday - Friday</p>
-        <p>08:00 AM - 10:00 AM</p>
-        <p>01:00 PM - 04:00 PM</p>
-        <p>06:00 PM - 08:00 PM</p>
+        {/* Availability */}
+        <div>
+          <h3 className="font-semibold text-base mb-1">Consulting Availability</h3>
+          <p className="text-gray-700">Monday - Friday</p>
+          <p className="text-gray-700">08:00 AM - 10:00 AM</p>
+          <p className="text-gray-700">01:00 PM - 04:00 PM</p>
+          <p className="text-gray-700">06:00 PM - 08:00 PM</p>
+        </div>
       </div>
 
-      <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-6 font-semibold">
+      {/* CTA Button */}
+      <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-8 font-semibold text-base shadow-sm hover:bg-blue-700 transition">
         Book an Appointment
       </button>
     </div>

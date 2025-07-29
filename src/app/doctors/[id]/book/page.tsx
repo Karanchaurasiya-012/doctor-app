@@ -39,9 +39,9 @@ export default function BookAppointmentPage() {
   if (!doctor) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-white px-5 py-6 max-w-md mx-auto">
+    <div className="min-h-screen bg-[#f4f6fc] px-5 py-6 max-w-md mx-auto">
       {/* Top Section */}
-      <div className="flex flex-col items-center text-center">
+      <div className="flex flex-col items-center text-center bg-white rounded-2xl p-4 shadow-md">
         <div className="w-28 h-28 relative rounded-full overflow-hidden border-4 border-white shadow-md">
           <Image
             src={doctor.image}
@@ -56,7 +56,7 @@ export default function BookAppointmentPage() {
       </div>
 
       {/* Stats */}
-      <div className="flex justify-around mt-6 text-center text-sm text-gray-600">
+      <div className="flex justify-around mt-6 text-center text-sm text-gray-600 bg-white rounded-2xl p-4 shadow-md">
         <div>
           <p className="text-lg font-bold">5,000+</p>
           <p>Patients</p>
@@ -72,7 +72,7 @@ export default function BookAppointmentPage() {
       </div>
 
       {/* About Section */}
-      <div className="mt-6 space-y-4 text-sm">
+      <div className="mt-6 space-y-4 text-sm bg-white rounded-2xl p-4 shadow-md">
         <div>
           <h3 className="font-semibold text-base mb-1">About Me</h3>
           <p className="text-gray-700 leading-relaxed">

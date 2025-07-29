@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import Image from "next/image";
 
+// ✅ Define Doctor type
 type Doctor = {
   id: number;
   name: string;
@@ -15,6 +16,7 @@ type Doctor = {
   image: string;
 };
 
+// ✅ DoctorCard component (Reusable)
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
@@ -48,13 +50,22 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   );
 }
 
+// ✅ Main DoctorsPage component
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
-    fetch("https://json-backend-8zn4.onrender.com/doctors")
-      .then((res) => res.json())
-      .then((data) => setDoctors(data));
+    const fetchDoctors = async () => {
+      try {
+        const res = await fetch("https://json-backend-8zn4.onrender.com/doctors");
+        const data: Doctor[] = await res.json();
+        setDoctors(data);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    fetchDoctors();
   }, []);
 
   return (

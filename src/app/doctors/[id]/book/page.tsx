@@ -13,6 +13,12 @@ type Doctor = {
 
 export default function BookAppointmentPage() {
   const params = useParams();
+
+  // Handle case where params might be null or undefined
+  if (!params || !params.id) {
+    return <p className="text-center mt-10">Loading...</p>; // Or a more robust loading/error state
+  }
+
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const [doctor, setDoctor] = useState<Doctor | null>(null);

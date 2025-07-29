@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type FormData = {
   identifier: string;
@@ -102,9 +103,11 @@ export default function LoginForm() {
         <div className="text-center my-4 text-gray-400">or login with</div>
 
         <button className="w-full border py-2 rounded-xl flex justify-center items-center gap-2 hover:bg-gray-100">
-          <img
+          <Image
             src="https://img.icons8.com/color/24/google-logo.png"
             alt="Google"
+            width={24}
+            height={24}
           />
           Continue with Google
         </button>

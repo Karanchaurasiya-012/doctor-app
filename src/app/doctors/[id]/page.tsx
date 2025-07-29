@@ -11,16 +11,6 @@ type Doctor = {
   image: string;
 };
 
-// ✅ SSG for Dynamic Routes
-export async function generateStaticParams() {
-  const res = await fetch("https://json-backend-8zn4.onrender.com/doctors");
-  const doctors: Doctor[] = await res.json();
-
-  return doctors.map((doctor) => ({
-    id: doctor.id.toString(),
-  }));
-}
-
 // ✅ Fetch One Doctor by ID
 async function getDoctor(id: string): Promise<Doctor | null> {
   const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`, {
@@ -31,12 +21,12 @@ async function getDoctor(id: string): Promise<Doctor | null> {
   return res.json();
 }
 
-// ✅ Dynamic Page Component (NO custom props interface here)
-export default async function DoctorDetail({
-  params,
-}: {
+type Props = {
   params: { id: string };
-}) {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function DoctorDetail({ params }: Props) {
   const doctor = await getDoctor(params.id);
   if (!doctor) return notFound();
 

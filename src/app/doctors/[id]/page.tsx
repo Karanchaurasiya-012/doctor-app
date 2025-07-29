@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/image"; // Added comment to trigger re-deployment
 
 type Doctor = {
   id: number;

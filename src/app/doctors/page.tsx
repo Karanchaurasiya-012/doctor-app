@@ -18,14 +18,17 @@ type Doctor = {
 
 // ✅ DoctorCard component (Reusable)
 function DoctorCard({ doctor }: { doctor: Doctor }) {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
       <Image
-        src={doctor.image}
+        src={imageError ? "/placeholder-doctor.png" : doctor.image}
         alt={doctor.name}
         width={80}
         height={80}
         className="w-20 h-20 rounded-xl object-cover"
+        onError={() => setImageError(true)}
       />
 
       <div className="ml-4 flex-1">

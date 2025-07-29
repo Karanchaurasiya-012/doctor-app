@@ -11,7 +11,7 @@ type Doctor = {
   image: string;
 };
 
-// ✅ Static site generation (pre-build each doctor page)
+// ✅ Static site generation
 export async function generateStaticParams() {
   const res = await fetch("https://json-backend-8zn4.onrender.com/doctors");
   const doctors: Doctor[] = await res.json();
@@ -31,13 +31,14 @@ async function getDoctor(id: string): Promise<Doctor | null> {
   return res.json();
 }
 
-export default async function DoctorDetail({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const doctor = await getDoctor(params.id);
+type Props = {
+  params: {
+    id: string;
+  };
+};
 
+export default async function DoctorDetail({ params }: Props) {
+  const doctor = await getDoctor(params.id);
   if (!doctor) return notFound();
 
   return (
@@ -97,8 +98,8 @@ export default async function DoctorDetail({
         <div>
           <h4 className="font-bold mb-1">About Doctor</h4>
           <p className="text-gray-600 text-sm">
-            15+ years of experience in all aspects of cardiology,
-            including non-invasive and interventional procedures.
+            15+ years of experience in all aspects of cardiology, including non-invasive
+            and interventional procedures.
           </p>
         </div>
 
@@ -120,15 +121,12 @@ export default async function DoctorDetail({
           <span className="text-2xl">➡️</span>
         </div>
 
-        <button className="w-full bg-cyan-500 text-white py-3 rounded-xl font-semibold">
-          Book appointment
-        </button>
+        <Link href={`/doctors/${doctor.id}/book`}>
+          <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4 font-semibold">
+            Book an Appointment
+          </button>
+        </Link>
       </div>
     </div>
   );
-  <Link href={`/doctors/${doctor.id}/book`}>
-  <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4">
-    Book an Appointment
-  </button>
-</Link>
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import Image from "next/image";
 
 type Doctor = {
   id: number;
@@ -17,9 +18,11 @@ type Doctor = {
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
     <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
-      <img
+      <Image
         src={doctor.image}
         alt={doctor.name}
+        width={80}
+        height={80}
         className="w-20 h-20 rounded-xl object-cover"
       />
 
@@ -64,8 +67,10 @@ export default function DoctorsPage() {
             <p className="text-sm text-gray-500">📍 Dombivli, Mumbai</p>
           </div>
           <div className="relative">
-            <img
+            <Image
               src="https://randomuser.me/api/portraits/women/44.jpg"
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover"
               alt="Profile"
             />

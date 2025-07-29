@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type Doctor = {
   id: number;
@@ -11,33 +12,46 @@ type Doctor = {
 };
 
 export default function BookAppointmentPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
   const [doctor, setDoctor] = useState<Doctor | null>(null);
 
   useEffect(() => {
     async function fetchDoctor() {
-      const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`);
-      const data = await res.json();
-      setDoctor(data);
+      try {
+        const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch doctor");
+        const data = await res.json();
+        setDoctor(data);
+      } catch (err) {
+        console.error("Error loading doctor", err);
+      }
     }
-    fetchDoctor();
+
+    if (id) fetchDoctor();
   }, [id]);
 
-  if (!doctor) return <p>Loading...</p>;
+  if (!doctor) return <p className="text-center mt-10">Loading...</p>;
 
   return (
     <div className="min-h-screen bg-white p-4 space-y-4">
+      {/* Doctor Info */}
       <div className="text-center">
-        <img
-          src={doctor.image}
-          alt={doctor.name}
-          className="mx-auto w-24 h-24 rounded-full object-cover"
-        />
-        <h2 className="text-xl font-bold mt-2">{doctor.name}</h2>
+        <div className="mx-auto w-24 h-24 relative">
+          <Image
+            src={doctor.image}
+            alt={doctor.name}
+            fill
+            className="rounded-full object-cover"
+          />
+        </div>
+        <h2 className="text-xl font-bold mt-3">{doctor.name}</h2>
         <p className="text-sm text-gray-500">{doctor.specialty}</p>
         <p className="text-sm text-gray-500">The Wiscon Hospital in California, US</p>
       </div>
 
+      {/* Stats */}
       <div className="flex justify-around text-center text-sm text-gray-600">
         <div>
           <p className="font-bold text-lg">5,000+</p>
@@ -45,7 +59,7 @@ export default function BookAppointmentPage() {
         </div>
         <div>
           <p className="font-bold text-lg">10+</p>
-          <p>Years exper..</p>
+          <p>Years Exp</p>
         </div>
         <div>
           <p className="font-bold text-lg">4.8</p>
@@ -53,16 +67,17 @@ export default function BookAppointmentPage() {
         </div>
       </div>
 
+      {/* Details */}
       <div className="space-y-2 text-sm">
         <h3 className="font-semibold text-base">About Me</h3>
         <p>
-          Dr. {doctor.name} is the top most Immunologist specialist in Christ Hospital at London.
-          She achieved several awards for her wonderful contribution in medical field. She is
-          available for private consultation.
+          Dr. {doctor.name} is a leading Immunologist specialist in Christ Hospital, London.
+          She has received numerous awards for excellence in the medical field and is
+          available for private consultations.
         </p>
 
         <h3 className="font-semibold mt-4">Qualification</h3>
-        <p>Degree: MBBS, Sydney college and university</p>
+        <p>Degree: MBBS, Sydney College & University</p>
 
         <h3 className="font-semibold mt-4">Service and Specialization</h3>
         <p>Service: Medicare</p>

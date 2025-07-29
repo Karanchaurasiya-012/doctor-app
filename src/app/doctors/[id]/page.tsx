@@ -126,4 +126,9 @@ export default async function DoctorDetail({
       </div>
     </div>
   );
+  <Link href={`/doctors/${doctor.id}/book`}>
+  <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4">
+    Book an Appointment
+  </button>
+</Link>
 }

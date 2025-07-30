@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation"; // ✅ useRouter added
 import { useEffect, useState } from "react";
 import ImageWithFallback from "../../../../components/ImageWithFallback";
 
@@ -13,6 +13,7 @@ type Doctor = {
 
 export default function BookAppointmentPage() {
   const params = useParams();
+  const router = useRouter(); // ✅ Hook init
 
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [doctor, setDoctor] = useState<Doctor | null>(null);
@@ -42,7 +43,7 @@ export default function BookAppointmentPage() {
           <ImageWithFallback
             src={doctor.image}
             alt={doctor.name}
-            fallbackSrc={`/images/doctor${doctor.id}.jpg`} // fallback logic
+            fallbackSrc={`/images/doctor${doctor.id}.jpg`}
             fill
             className="object-cover"
           />
@@ -103,7 +104,10 @@ export default function BookAppointmentPage() {
       </div>
 
       {/* CTA Button */}
-      <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-8 font-semibold text-base shadow-sm hover:bg-blue-700 transition">
+      <button
+        onClick={() => router.push(`/doctors/${id}/confirmation`)} // ✅ Redirection logic
+        className="w-full bg-blue-600 text-white py-3 rounded-xl mt-8 font-semibold text-base shadow-sm hover:bg-blue-700 transition"
+      >
         Book an Appointment
       </button>
     </div>

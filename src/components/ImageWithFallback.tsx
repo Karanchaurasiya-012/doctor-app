@@ -20,7 +20,8 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
       {...rest}
       src={imgSrc}
       alt={alt}
-      onError={() => {
+      onError={(e) => {
+        console.error("Image failed to load:", src, e);
         setImgSrc(fallbackSrc);
       }}
     />

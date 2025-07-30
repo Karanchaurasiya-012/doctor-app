@@ -20,6 +20,7 @@ export default function BookAppointmentPage() {
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [imageError, setImageError] = useState(false); // fallback ke liye
 
   useEffect(() => {
     async function fetchDoctor() {
@@ -44,10 +45,11 @@ export default function BookAppointmentPage() {
       <div className="flex flex-col items-center text-center bg-white rounded-2xl p-4 shadow-md">
         <div className="w-28 h-28 relative rounded-full overflow-hidden border-4 border-white shadow-md">
           <Image
-            src={doctor.image}
+            src={imageError ? "/doctor.png" : doctor.image}
             alt={doctor.name}
             fill
             className="object-cover"
+            onError={() => setImageError(true)}
           />
         </div>
         <h1 className="mt-4 text-xl font-semibold">{doctor.name}</h1>

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import ImageWithFallback from "../../components/ImageWithFallback";
 
-// ✅ Define Doctor type
 type Doctor = {
   id: number;
   name: string;
@@ -16,12 +15,12 @@ type Doctor = {
   image: string;
 };
 
-// ✅ DoctorCard component (Reusable)
 function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-    <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer">
+    <div className="flex border rounded-2xl p-4 items-center shadow-sm hover:shadow-md transition cursor-pointer bg-white">
       <ImageWithFallback
         src={doctor.image}
+        fallbackSrc={`/images/doctor${doctor.id}.jpg`} // 👈 Fallback image
         alt={doctor.name}
         width={80}
         height={80}
@@ -50,7 +49,6 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   );
 }
 
-// ✅ Main DoctorsPage component
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
 
@@ -69,7 +67,7 @@ export default function DoctorsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Top Greeting */}
       <div className="px-4 pt-6">
         <div className="flex justify-between items-center">
@@ -80,6 +78,7 @@ export default function DoctorsPage() {
           <div className="relative">
             <ImageWithFallback
               src="https://picsum.photos/seed/profile/40/40"
+              fallbackSrc="/images/default-doctor.png"
               width={40}
               height={40}
               className="w-10 h-10 rounded-full object-cover"

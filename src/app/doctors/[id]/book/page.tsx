@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import ImageWithFallback from "../../../../components/ImageWithFallback";
 
 type Doctor = {
   id: number;
@@ -14,13 +14,8 @@ type Doctor = {
 export default function BookAppointmentPage() {
   const params = useParams();
 
-  if (!params || !params.id) {
-    return <p className="text-center mt-10">Loading...</p>;
-  }
-
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [doctor, setDoctor] = useState<Doctor | null>(null);
-  const [imageError, setImageError] = useState(false); // fallback ke liye
 
   useEffect(() => {
     async function fetchDoctor() {
@@ -44,12 +39,12 @@ export default function BookAppointmentPage() {
       {/* Top Section */}
       <div className="flex flex-col items-center text-center bg-white rounded-2xl p-4 shadow-md">
         <div className="w-28 h-28 relative rounded-full overflow-hidden border-4 border-white shadow-md">
-          <Image
-            src={imageError ? "/doctor.png" : doctor.image}
+          <ImageWithFallback
+            src={doctor.image}
             alt={doctor.name}
+            fallbackSrc={`/images/doctor${doctor.id}.jpg`} // fallback logic
             fill
             className="object-cover"
-            onError={() => setImageError(true)}
           />
         </div>
         <h1 className="mt-4 text-xl font-semibold">{doctor.name}</h1>

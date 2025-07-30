@@ -3,23 +3,21 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "json-backend-8zn4.onrender.com",
-        port: "",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'picsum.photos',
       },
       {
-        protocol: "https",
-        hostname: "img.icons8.com",
-        port: "",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'json-backend-8zn4.onrender.com',
       },
       {
-        protocol: "https",
-        hostname: "randomuser.me",
-        port: "",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'img.icons8.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'randomuser.me',
+      }
     ],
   },
 };

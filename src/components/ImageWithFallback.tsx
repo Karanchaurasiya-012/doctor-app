@@ -3,29 +3,30 @@
 import Image, { ImageProps } from "next/image";
 import { useState } from "react";
 
-interface ImageWithFallbackProps extends ImageProps {
+type ImageWithFallbackProps = ImageProps & {
   fallbackSrc?: string;
-}
+};
 
-const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
+export default function ImageWithFallback({
   src,
-  fallbackSrc = "/doctor.png", // Default fallback image
+  fallbackSrc = "/images/default-doctor.png",
   alt,
   ...rest
-}) => {
+}: ImageWithFallbackProps) {
   const [imgSrc, setImgSrc] = useState(src);
+
+  const handleError = () => {
+    if (imgSrc !== fallbackSrc) {
+      setImgSrc(fallbackSrc);
+    }
+  };
 
   return (
     <Image
       {...rest}
-      src={imgSrc}
+      src={imgSrc || fallbackSrc}
       alt={alt}
-      onError={(e) => {
-        console.error("Image failed to load:", src, e);
-        setImgSrc(fallbackSrc);
-      }}
+      onError={handleError}
     />
   );
-};
-
-export default ImageWithFallback;
+}

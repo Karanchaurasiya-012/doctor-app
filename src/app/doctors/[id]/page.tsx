@@ -11,7 +11,6 @@ type Doctor = {
   image: string;
 };
 
-// ✅ Fetch One Doctor by ID
 async function getDoctor(id: string): Promise<Doctor | null> {
   const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`, {
     cache: "no-store",
@@ -32,6 +31,7 @@ export default async function DoctorDetail({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
       <div className="flex items-center px-4 py-4 bg-cyan-500 text-white font-medium">
         <Link href="/doctors">
           <ArrowLeft className="mr-3 cursor-pointer" />
@@ -39,10 +39,13 @@ export default async function DoctorDetail({ params }: Props) {
         <h2 className="text-lg">Book Appointment</h2>
       </div>
 
+      {/* Content */}
       <div className="p-4 space-y-4">
+        {/* Doctor Info */}
         <div className="bg-white rounded-xl shadow-md p-4 flex items-center space-x-4">
           <ImageWithFallback
             src={doctor.image}
+            fallbackSrc={`/images/doctor${doctor.id}.jpg`} // ✅ fallback added here
             alt={doctor.name}
             width={80}
             height={80}
@@ -56,6 +59,7 @@ export default async function DoctorDetail({ params }: Props) {
           </div>
         </div>
 
+        {/* Speciality Tags */}
         <div>
           <h4 className="font-bold mb-2">Speciality</h4>
           <div className="flex flex-wrap gap-2 text-sm">
@@ -75,6 +79,7 @@ export default async function DoctorDetail({ params }: Props) {
           </div>
         </div>
 
+        {/* About Doctor */}
         <div>
           <h4 className="font-bold mb-1">About Doctor</h4>
           <p className="text-gray-600 text-sm">
@@ -83,12 +88,14 @@ export default async function DoctorDetail({ params }: Props) {
           </p>
         </div>
 
+        {/* Availability */}
         <div>
           <h4 className="font-bold mb-1">Availability For Consulting</h4>
           <p className="text-gray-600 text-sm">Monday to Friday | 10 PM to 1 PM</p>
           <p className="text-gray-600 text-sm">Saturday | 2 PM to 5 PM</p>
         </div>
 
+        {/* Appointment Box */}
         <div className="border p-3 rounded-xl shadow-sm flex justify-between items-center">
           <div>
             <p className="text-blue-600 text-sm font-semibold">
@@ -99,6 +106,7 @@ export default async function DoctorDetail({ params }: Props) {
           <span className="text-2xl">➡️</span>
         </div>
 
+        {/* Book Button */}
         <Link href={`/doctors/${doctor.id}/book`}>
           <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4 font-semibold">
             Book an Appointment

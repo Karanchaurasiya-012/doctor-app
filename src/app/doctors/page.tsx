@@ -79,7 +79,7 @@ export default function DoctorsPage() {
           </div>
           <div className="relative">
             <ImageWithFallback
-              src="https://randomuser.me/api/portraits/women/44.jpg"
+              src="https://picsum.photos/seed/profile/40/40"
               width={40}
               height={40}
               className="w-10 h-10 rounded-full object-cover"

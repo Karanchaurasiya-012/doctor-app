@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ImageWithFallback from "@/components/ImageWithFallback";
 
@@ -12,11 +12,12 @@ type Doctor = {
 
 export default function ConfirmationPage() {
   const params = useParams();
+  const router = useRouter();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const [doctor, setDoctor] = useState<Doctor | null>(null);
 
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [dateStart, setDateStart] = useState(new Date()); // Start date for 6-day window
+  const [dateStart, setDateStart] = useState(new Date());
 
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [selectedEveningSlot, setSelectedEveningSlot] = useState<string | null>(null);
@@ -36,7 +37,6 @@ export default function ConfirmationPage() {
     if (id) fetchDoctor();
   }, [id]);
 
-  // Generate 6-day date list starting from `dateStart`
   const dates = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(dateStart);
     d.setDate(d.getDate() + i);
@@ -70,6 +70,7 @@ export default function ConfirmationPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#eaf6fd] to-[#ffffff] px-4 py-6 max-w-md mx-auto">
       <h2 className="text-lg font-bold text-[#007FE0] mb-4">Book Appointment</h2>
 
+      {/* Doctor Card */}
       <div className="bg-white rounded-2xl shadow p-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{doctor.name}</h3>
@@ -168,8 +169,11 @@ export default function ConfirmationPage() {
         </div>
       </div>
 
-      {/* Final Button */}
-      <button className="w-full bg-[#22C7F0] text-white py-3 mt-8 rounded-xl font-semibold shadow hover:bg-[#1ba8d1] transition">
+      {/* ✅ Updated Book Appointment Button */}
+      <button
+        onClick={() => router.push(`/doctors/${id}/patient-details`)}
+        className="w-full bg-[#22C7F0] text-white py-3 mt-8 rounded-xl font-semibold shadow hover:bg-[#1ba8d1] transition"
+      >
         Book appointment
       </button>
     </div>

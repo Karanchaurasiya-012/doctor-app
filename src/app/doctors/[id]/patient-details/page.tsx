@@ -3,11 +3,16 @@
 import { useRouter, useParams } from "next/navigation";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useState } from "react";
 
 export default function PatientDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const id = (params?.id ?? "") as string;
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [tokenNumber, setTokenNumber] = useState<string | null>(null);
 
   const initialValues = {
     name: "",
@@ -29,14 +34,24 @@ export default function PatientDetailsPage() {
       .optional(),
   });
 
+  const isFormEmpty = (values: typeof initialValues) => {
+    return (
+      values.name === "" &&
+      values.age === "" &&
+      values.problem === "" &&
+      values.relation === "" &&
+      values.mobile === ""
+    );
+  };
+
   const handleSubmit = (values: typeof initialValues) => {
     console.log("Form Submitted:", values);
-    // You can send form data to server here
+    // Optional: send data to server
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-6 max-w-md mx-auto">
-      {/* Topbar with Go Back */}
+    <div className="min-h-screen bg-white px-4 py-6 max-w-md mx-auto relative">
+      {/* Topbar */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => router.back()}
@@ -45,7 +60,7 @@ export default function PatientDetailsPage() {
           ←
         </button>
         <h1 className="text-center text-lg font-semibold text-[#22C7F0] flex-grow">
-          Patient Details 
+          Patient Details
         </h1>
       </div>
 
@@ -57,7 +72,7 @@ export default function PatientDetailsPage() {
         >
           {({ values, setFieldValue }) => (
             <Form className="space-y-4">
-              {/* Full Name */}
+              {/* Fields */}
               <div>
                 <Field
                   name="name"
@@ -68,7 +83,6 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
               </div>
 
-              {/* Age + Gender */}
               <div className="flex items-center gap-4">
                 <div>
                   <Field
@@ -95,7 +109,6 @@ export default function PatientDetailsPage() {
                 </div>
               </div>
 
-              {/* Problem */}
               <div>
                 <Field
                   name="problem"
@@ -106,7 +119,6 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="problem" component="div" className="text-red-500 text-sm" />
               </div>
 
-              {/* Relation */}
               <div>
                 <Field
                   name="relation"
@@ -117,7 +129,6 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="relation" component="div" className="text-red-500 text-sm" />
               </div>
 
-              {/* Mobile */}
               <div>
                 <Field
                   name="mobile"
@@ -130,13 +141,17 @@ export default function PatientDetailsPage() {
 
               {/* Buttons */}
               <div className="space-y-3 pt-2">
-                {/* ✅ Updated Make Payment Button */}
                 <button
                   type="button"
                   className="w-full border border-[#22C7F0] text-[#22C7F0] font-semibold py-3 rounded-xl"
                   onClick={() => {
-                    const token = Math.floor(1000 + Math.random() * 9000); // 🔥 Dynamic Token
-                    router.push(`/doctors/${id}/success?token=${token}`);
+                    if (isFormEmpty(values)) {
+                      setShowErrorModal(true);
+                      return;
+                    }
+                    const token = Math.floor(1000 + Math.random() * 9000).toString();
+                    setTokenNumber(token);
+                    setShowSuccessModal(true);
                   }}
                 >
                   Make Payment
@@ -153,6 +168,54 @@ export default function PatientDetailsPage() {
           )}
         </Formik>
       </div>
+
+      {/* ❌ Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full text-center space-y-4">
+            <img src="/error.png" alt="Error" className="w-24 h-24 mx-auto" />
+            <h2 className="text-xl font-bold text-red-500">Booking Failed Please Try Again</h2>
+            <p className="text-gray-600 text-sm">
+              May be Network delay and having some errors,
+              <br /> please try again.
+              <br /> Thank you...
+            </p>
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="bg-red-500 text-white px-6 py-2 rounded-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full text-center space-y-4">
+            <img src="/success.png" alt="Success" className="w-24 h-24 mx-auto" />
+            <h2 className="text-lg font-bold text-green-600">Appointment Booked</h2>
+            <p className="text-gray-700">Successfully!</p>
+            <p className="text-sm">
+              Token No <span className="text-green-500 font-semibold">{tokenNumber}</span>
+            </p>
+            <p className="text-gray-500 text-sm">
+              You will receive a Notification half an hour before as reminder.
+              Thank you...
+            </p>
+            <button
+              onClick={() => {
+                setShowSuccessModal(false);
+                router.push("/");
+              }}
+              className="bg-teal-500 text-white px-6 py-2 rounded-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

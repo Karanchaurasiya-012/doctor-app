@@ -7,8 +7,7 @@ import * as Yup from "yup";
 export default function PatientDetailsPage() {
   const router = useRouter();
   const params = useParams();
-const id = (params?.id ?? "") as string;
-
+  const id = (params?.id ?? "") as string;
 
   const initialValues = {
     name: "",
@@ -32,8 +31,7 @@ const id = (params?.id ?? "") as string;
 
   const handleSubmit = (values: typeof initialValues) => {
     console.log("Form Submitted:", values);
-    // 👉 Navigate or handle submission
-    // router.push(`/doctors/${id}/payment`);
+    // You can send form data to server here
   };
 
   return (
@@ -132,13 +130,18 @@ const id = (params?.id ?? "") as string;
 
               {/* Buttons */}
               <div className="space-y-3 pt-2">
+                {/* ✅ Updated Make Payment Button */}
                 <button
                   type="button"
                   className="w-full border border-[#22C7F0] text-[#22C7F0] font-semibold py-3 rounded-xl"
-                  onClick={() => alert("Redirecting to payment...")}
+                  onClick={() => {
+                    const token = Math.floor(1000 + Math.random() * 9000); // 🔥 Dynamic Token
+                    router.push(`/doctors/${id}/success?token=${token}`);
+                  }}
                 >
                   Make Payment
                 </button>
+
                 <button
                   type="submit"
                   className="w-full bg-[#22C7F0] text-white font-semibold py-3 rounded-xl"

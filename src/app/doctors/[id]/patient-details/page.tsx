@@ -45,8 +45,37 @@ export default function PatientDetailsPage() {
   };
 
   const handleSubmit = (values: typeof initialValues) => {
+    // You can still use this if you want to separate submission logic
     console.log("Form Submitted:", values);
-    // Optional: send data to server
+  };
+
+  const bookAppointment = async (values: typeof initialValues) => {
+    const token = Math.floor(1000 + Math.random() * 9000).toString();
+    const appointment = {
+      doctorId: Number(id),
+      patientName: values.name || "Unknown",
+      age: values.age || "",
+      gender: values.gender,
+      mobile: values.mobile || "",
+      date: new Date().toISOString(),
+      token: token,
+    };
+
+    try {
+      const res = await fetch("https://json-backend-8zn4.onrender.com/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(appointment),
+      });
+
+      if (!res.ok) throw new Error("Network response not ok");
+
+      setTokenNumber(token);
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error("Booking failed:", err);
+      setShowErrorModal(true);
+    }
   };
 
   return (
@@ -72,7 +101,7 @@ export default function PatientDetailsPage() {
         >
           {({ values, setFieldValue }) => (
             <Form className="space-y-4">
-              {/* Fields */}
+              {/* Name */}
               <div>
                 <Field
                   name="name"
@@ -83,6 +112,7 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
               </div>
 
+              {/* Age + Gender */}
               <div className="flex items-center gap-4">
                 <div>
                   <Field
@@ -109,6 +139,7 @@ export default function PatientDetailsPage() {
                 </div>
               </div>
 
+              {/* Problem */}
               <div>
                 <Field
                   name="problem"
@@ -119,6 +150,7 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="problem" component="div" className="text-red-500 text-sm" />
               </div>
 
+              {/* Relation */}
               <div>
                 <Field
                   name="relation"
@@ -129,6 +161,7 @@ export default function PatientDetailsPage() {
                 <ErrorMessage name="relation" component="div" className="text-red-500 text-sm" />
               </div>
 
+              {/* Mobile */}
               <div>
                 <Field
                   name="mobile"
@@ -149,9 +182,7 @@ export default function PatientDetailsPage() {
                       setShowErrorModal(true);
                       return;
                     }
-                    const token = Math.floor(1000 + Math.random() * 9000).toString();
-                    setTokenNumber(token);
-                    setShowSuccessModal(true);
+                    void bookAppointment(values);
                   }}
                 >
                   Make Payment
@@ -176,8 +207,9 @@ export default function PatientDetailsPage() {
             <img src="/error.png" alt="Error" className="w-24 h-24 mx-auto" />
             <h2 className="text-xl font-bold text-red-500">Booking Failed Please Try Again</h2>
             <p className="text-gray-600 text-sm">
-              May be Network delay and having some errors,
-              <br /> please try again.
+              May be network delay or having some errors,
+              <br />
+              please try again.
               <br /> Thank you...
             </p>
             <button
@@ -201,13 +233,13 @@ export default function PatientDetailsPage() {
               Token No <span className="text-green-500 font-semibold">{tokenNumber}</span>
             </p>
             <p className="text-gray-500 text-sm">
-              You will receive a Notification half an hour before as reminder.
+              You will receive a notification half an hour before as reminder.
               Thank you...
             </p>
             <button
               onClick={() => {
                 setShowSuccessModal(false);
-                router.push("/");
+                router.push("/appointments");
               }}
               className="bg-teal-500 text-white px-6 py-2 rounded-full"
             >

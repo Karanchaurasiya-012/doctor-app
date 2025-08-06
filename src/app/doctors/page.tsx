@@ -110,7 +110,9 @@ export default function DoctorsPage() {
       {/* Bottom Navbar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-3 flex justify-between text-sm text-gray-600">
         <span className="text-blue-600 font-bold">Find a Doctor</span>
-        <span>Appoint.</span>
+        <Link href="/appointments">
+        <span className="font-semibold">Appoint.</span>
+        </Link>
         <span>Records</span>
         <span>Profile</span>
       </nav>

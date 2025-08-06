@@ -40,7 +40,6 @@ export default function LoginForm() {
 
         if (users.length > 0) {
           alert("✅ Patient login successful");
-          // TODO: persist session (e.g., localStorage / context)
           router.push("/verify-otp");
         } else {
           setLoginError("❌ Invalid patient credentials");
@@ -59,8 +58,8 @@ export default function LoginForm() {
         if (doctors.length > 0) {
           const matched = doctors[0];
           alert(`✅ Doctor login successful (${matched.name})`);
-          // TODO: persist doctor session
-          router.push(`/doctors/${matched.id}`);
+          // Redirect to temporary doctor dashboard path
+          router.push(`/patients/${matched.id}`);
         } else {
           setLoginError("❌ Invalid doctor credentials");
         }

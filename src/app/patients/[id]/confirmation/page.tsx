@@ -171,7 +171,7 @@ export default function ConfirmationPage() {
 
       {/* ✅ Updated Book Appointment Button */}
       <button
-        onClick={() => router.push(`/doctors/${id}/patient-details`)}
+        onClick={() => router.push(`/patients/${id}/patient-details`)}
         className="w-full bg-[#22C7F0] text-white py-3 mt-8 rounded-xl font-semibold shadow hover:bg-[#1ba8d1] transition"
       >
         Book appointment

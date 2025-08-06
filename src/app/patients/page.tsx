@@ -101,7 +101,7 @@ export default function DoctorsPage() {
       {/* Doctor List */}
       <div className="mt-4 space-y-4 px-4">
         {doctors.map((doctor) => (
-          <Link href={`/doctors/${doctor.id}`} key={doctor.id}>
+          <Link href={`/patients/${doctor.id}`} key={doctor.id}>
             <DoctorCard doctor={doctor} />
           </Link>
         ))}

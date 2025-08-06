@@ -105,7 +105,7 @@ export default function BookAppointmentPage() {
 
       {/* CTA Button */}
       <button
-        onClick={() => router.push(`/doctors/${id}/confirmation`)} // ✅ Redirection logic
+        onClick={() => router.push(`/patients/${id}/confirmation`)} // ✅ Redirection logic
         className="w-full bg-blue-600 text-white py-3 rounded-xl mt-8 font-semibold text-base shadow-sm hover:bg-blue-700 transition"
       >
         Book an Appointment

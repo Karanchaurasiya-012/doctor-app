@@ -59,7 +59,7 @@ export default function LoginForm() {
           const matched = doctors[0];
           alert(`✅ Doctor login successful (${matched.name})`);
           // Redirect to temporary doctor dashboard path
-          router.push(`/patients/${matched.id}`);
+          router.push(`/doctors/${matched.id}`);
         } else {
           setLoginError("❌ Invalid doctor credentials");
         }

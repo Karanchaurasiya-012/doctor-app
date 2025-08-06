@@ -1,118 +1,430 @@
-// ✅ Server Component
-import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import ImageWithFallback from "../../../components/ImageWithFallback";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Info, LogOut, X } from "lucide-react";
+import Image from "next/image";
+
+type Appointment = {
+  id: string;
+  doctorId: string | number;
+  patientName: string;
+  age: number | string;
+  gender: string;
+  mobile: string;
+  date: string;
+  token: string;
+};
 
 type Doctor = {
-  id: number;
+  id: string | number;
   name: string;
   specialty: string;
+  availableToday: boolean;
+  description: string;
+  timing: string;
   image: string;
+  email?: string;
+  mobile?: string;
 };
 
-async function getDoctor(id: string): Promise<Doctor | null> {
-  const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors/${id}`, {
-    cache: "no-store",
+export default function DoctorDashboardTempOnPatientsRoute() {
+  const params = useParams();
+  const router = useRouter();
+
+  // normalize param to string
+  const rawId = params?.id;
+  const doctorId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
+
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [showAbout, setShowAbout] = useState(false);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDoctor = async () => {
+    try {
+      const res = await fetch(
+        `https://json-backend-8zn4.onrender.com/doctors?id=${encodeURIComponent(
+          String(doctorId)
+        )}`
+      );
+      const data = await res.json();
+      if (data && data.length > 0) setDoctor(data[0]);
+    } catch (e) {
+      console.error("Fetch doctor error:", e);
+      setError("Unable to load doctor info.");
+    }
+  };
+
+  const fetchAppointments = async () => {
+    try {
+      const res = await fetch(
+        `https://json-backend-8zn4.onrender.com/appointments?doctorId=${encodeURIComponent(
+          String(doctorId)
+        )}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch appointments");
+      const data: Appointment[] = await res.json();
+      setAppointments(
+        data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      );
+    } catch (e) {
+      console.error("Fetch appointments error:", e);
+      setError((prev) => prev || "Unable to load appointments.");
+    }
+  };
+
+  useEffect(() => {
+    void Promise.all([fetchDoctor(), fetchAppointments()]).finally(() =>
+      setLoading(false)
+    );
+  }, [doctorId]);
+
+  const upcomingAppointments = appointments.filter(
+    (a) => new Date(a.date).getTime() >= Date.now()
+  );
+  const nextAppointment = upcomingAppointments[0] || null;
+
+  const filteredAppointments = appointments.filter((a) => {
+    if (!search.trim()) return true;
+    return a.patientName.toLowerCase().includes(search.toLowerCase());
   });
 
-  if (!res.ok) return null;
-  return res.json();
-}
+  const requestCancel = (appt: Appointment) => {
+    setSelectedAppt(appt);
+    setCancelReason("");
+    setShowCancelModal(true);
+  };
 
-type Props = {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+  const confirmCancel = async () => {
+    if (!selectedAppt) return;
+    if (!cancelReason.trim()) {
+      alert("Please provide a reason for cancellation.");
+      return;
+    }
+    try {
+      await fetch(
+        `https://json-backend-8zn4.onrender.com/appointments/${selectedAppt.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      await fetchAppointments();
+      setShowCancelModal(false);
+      setSelectedAppt(null);
+    } catch (e) {
+      console.error("Cancel failed:", e);
+      alert("Cancel failed. Try again.");
+    }
+  };
 
-export default async function DoctorDetail({ params }: Props) {
-  const doctor = await getDoctor(params.id);
-  if (!doctor) return notFound();
+  const handleLogout = () => {
+    router.push("/");
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="flex items-center px-4 py-4 bg-cyan-500 text-white font-medium">
-        <Link href="/doctors">
-          <ArrowLeft className="mr-3 cursor-pointer" />
-        </Link>
-        <h2 className="text-lg">Book Appointment</h2>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-4">
-        {/* Doctor Info */}
-        <div className="bg-white rounded-xl shadow-md p-4 flex items-center space-x-4">
-          <ImageWithFallback
-            src={doctor.image}
-            fallbackSrc={`/images/doctor${doctor.id}.jpg`} // ✅ fallback added here
-            alt={doctor.name}
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-xl object-cover"
-          />
+    <div className="min-h-screen bg-gray-50 pb-10">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 pt-6">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Image
+              src={doctor?.image || "/images/default-doctor.png"}
+              alt={doctor?.name || "Doctor"}
+              width={60}
+              height={60}
+              className="w-14 h-14 rounded-xl object-cover"
+            />
+            {doctor?.availableToday && (
+              <span className="absolute bottom-0 right-0 bg-green-500 w-4 h-4 rounded-full border-2 border-white" />
+            )}
+          </div>
           <div>
-            <h3 className="text-xl font-bold">{doctor.name}</h3>
-            <p className="text-gray-500">{doctor.specialty}</p>
-            <p className="text-green-600 text-sm font-medium">MBBS, MS (Surgeon)</p>
-            <p className="text-gray-400 text-sm">Fellow of Sanskara Netralaya, Chennai</p>
+            <h1 className="text-xl font-bold">{doctor?.name || "Doctor"}</h1>
+            <p className="text-sm text-gray-600">{doctor?.specialty || ""}</p>
           </div>
         </div>
+        <div className="flex gap-3 items-center">
+          <button
+            onClick={() => setShowAbout(true)}
+            className="p-2 rounded-full hover:bg-gray-100"
+            aria-label="About"
+          >
+            <Info size={20} />
+          </button>
+          <button
+            onClick={handleLogout}
+            className="p-2 rounded-full hover:bg-gray-100"
+            aria-label="Logout"
+          >
+            <LogOut size={20} />
+          </button>
+        </div>
+      </div>
 
-        {/* Speciality Tags */}
-        <div>
-          <h4 className="font-bold mb-2">Speciality</h4>
-          <div className="flex flex-wrap gap-2 text-sm">
-            {[
-              "Cataract specialist",
-              "Eye diabetes",
-              "Conjunctivitis",
-              "Pre cataract",
-              "Foreign body",
-              "Eye check up",
-              "Refraction",
-            ].map((tag) => (
-              <span key={tag} className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
-                {tag}
-              </span>
+      {/* Stats */}
+      <div className="px-4 mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
+          <p className="text-sm text-gray-500">Total Appointments</p>
+          <h2 className="text-2xl font-bold">{appointments.length}</h2>
+          <p className="text-xs text-gray-400 mt-1">Upcoming & past both</p>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow flex flex-col">
+          <p className="text-sm text-gray-500">Next Appointment</p>
+          {nextAppointment ? (
+            <div>
+              <h2 className="font-semibold">{nextAppointment.patientName}</h2>
+              <p className="text-xs text-gray-600">
+                {new Date(nextAppointment.date).toLocaleString()}
+              </p>
+              <p className="text-xs">
+                Token: <span className="font-medium">{nextAppointment.token}</span>
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">No upcoming</p>
+          )}
+        </div>
+      </div>
+
+      {/* Profile Summary */}
+      <div className="px-4 mt-6">
+        <div className="bg-white rounded-2xl shadow p-5 flex flex-col gap-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-bold text-lg">Profile Summary</h3>
+          <p className="text-sm text-gray-600">
+            {doctor?.description || "No description available."}
+          </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Timing</p>
+              <p className="font-medium">{doctor?.timing}</p>
+              <p className="text-xs mt-1">
+                {doctor?.availableToday ? (
+                  <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                    Available Today
+                  </span>
+                ) : (
+                  <span className="inline-block bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">
+                    Not Available
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            {doctor?.email && (
+              <div>
+                <p className="font-semibold">Email:</p>
+                <p>{doctor.email}</p>
+              </div>
+            )}
+            {doctor?.mobile && (
+              <div>
+                <p className="font-semibold">Mobile:</p>
+                <p>{doctor.mobile}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="px-4 mt-6">
+        <div className="flex gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by patient name"
+            className="flex-1 border rounded-xl px-4 py-2 bg-white focus:outline-none"
+          />
+          <button
+            onClick={() => setSearch("")}
+            className="px-4 py-2 bg-gray-200 rounded-xl text-sm"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      {/* Appointment List */}
+      <div className="px-4 mt-6">
+        <h2 className="text-lg font-semibold mb-3">Appointments</h2>
+        {loading ? (
+          <div className="bg-white rounded-2xl p-6 shadow text-center">
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-2xl p-6 shadow text-center">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : filteredAppointments.length === 0 ? (
+          <div className="bg-white rounded-2xl p-6 shadow text-center">
+            <p className="text-gray-600">No appointments found.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredAppointments.map((appt) => (
+              <div
+                key={appt.id}
+                className="bg-white rounded-2xl shadow p-4 flex justify-between items-start"
+              >
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-bold">{appt.patientName}</h3>
+                      <p className="text-xs text-gray-600">
+                        {new Date(appt.date).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600 font-semibold">
+                        Token: {appt.token}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm mt-1">
+                    Age: {appt.age} | Gender: {appt.gender}
+                  </p>
+                  <p className="text-sm">Mobile: {appt.mobile || "N/A"}</p>
+                </div>
+                <div className="flex flex-col gap-2 ml-4">
+                  <button
+                    onClick={() => requestCancel(appt)}
+                    className="text-red-500 text-sm font-semibold underline"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* About Doctor */}
-        <div>
-          <h4 className="font-bold mb-1">About Doctor</h4>
-          <p className="text-gray-600 text-sm">
-            15+ years of experience in all aspects of cardiology, including non-invasive
-            and interventional procedures.
-          </p>
-        </div>
-
-        {/* Availability */}
-        <div>
-          <h4 className="font-bold mb-1">Availability For Consulting</h4>
-          <p className="text-gray-600 text-sm">Monday to Friday | 10 PM to 1 PM</p>
-          <p className="text-gray-600 text-sm">Saturday | 2 PM to 5 PM</p>
-        </div>
-
-        {/* Appointment Box */}
-        <div className="border p-3 rounded-xl shadow-sm flex justify-between items-center">
-          <div>
-            <p className="text-blue-600 text-sm font-semibold">
-              Earliest Available Appointment
-            </p>
-            <p className="text-sm">10 Oct, 2023 | 11:30 AM</p>
-          </div>
-          <span className="text-2xl">➡️</span>
-        </div>
-
-        {/* Book Button */}
-        <Link href={`/doctors/${doctor.id}/book`}>
-          <button className="w-full bg-blue-600 text-white py-3 rounded-xl mt-4 font-semibold">
-            Book an Appointment
-          </button>
-        </Link>
+        )}
       </div>
+
+      {/* Cancel Modal */}
+      {showCancelModal && selectedAppt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6 space-y-4 relative">
+            <button
+              onClick={() => {
+                setShowCancelModal(false);
+                setSelectedAppt(null);
+              }}
+              className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-100"
+            >
+              <X size={18} />
+            </button>
+            <h2 className="text-xl font-bold">Cancel Appointment</h2>
+            <p className="text-sm">
+              Kya aap sach mein appointment cancel karna chahte hain with{" "}
+              <strong>{selectedAppt.patientName}</strong> on{" "}
+              <strong>{new Date(selectedAppt.date).toLocaleString()}</strong>?
+            </p>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Reason for cancellation
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Type reason..."
+                className="w-full border rounded-md px-3 py-2 h-28 resize-none"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowCancelModal(false);
+                  setSelectedAppt(null);
+                }}
+                className="px-4 py-2 rounded-lg border"
+              >
+                Close
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold"
+              >
+                Confirm Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* About Drawer */}
+      {showAbout && (
+        <div className="fixed inset-0 flex">
+          <div className="w-full max-w-md bg-white shadow-xl p-6 overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">About Doctor Dashboard</h2>
+              <button onClick={() => setShowAbout(false)} className="p-1">
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-sm mb-2">
+              Ye temporary doctor dashboard hai jo aapko appointments ka overview,
+              next upcoming, aur cancel karne ka option deta hai. Aap patient details
+              dekh sakte hain aur appointment manage kar sakte hain.
+            </p>
+            <div className="mt-4 space-y-3 text-sm">
+              <div>
+                <p className="font-medium">Doctor ID:</p>
+                <p>{doctor?.id || "-"}</p>
+              </div>
+              <div>
+                <p className="font-medium">Name:</p>
+                <p>{doctor?.name || "-"}</p>
+              </div>
+              <div>
+                <p className="font-medium">Specialty:</p>
+                <p>{doctor?.specialty || "-"}</p>
+              </div>
+              <div>
+                <p className="font-medium">Timing:</p>
+                <p>{doctor?.timing || "-"}</p>
+              </div>
+              <div>
+                <p className="font-medium">Available Today:</p>
+                <p>{doctor?.availableToday ? "Yes" : "No"}</p>
+              </div>
+              {doctor?.email && (
+                <div>
+                  <p className="font-medium">Email:</p>
+                  <p>{doctor.email}</p>
+                </div>
+              )}
+              {doctor?.mobile && (
+                <div>
+                  <p className="font-medium">Mobile:</p>
+                  <p>{doctor.mobile}</p>
+                </div>
+              )}
+              <div>
+                <p className="font-medium">Total Appointments:</p>
+                <p>{appointments.length}</p>
+              </div>
+              {nextAppointment && (
+                <div>
+                  <p className="font-medium">Next Appointment:</p>
+                  <p>{new Date(nextAppointment.date).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div
+            className="flex-1 bg-black bg-opacity-30"
+            onClick={() => setShowAbout(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

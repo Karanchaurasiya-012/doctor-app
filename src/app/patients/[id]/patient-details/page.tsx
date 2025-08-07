@@ -59,6 +59,9 @@ export default function PatientDetailsPage() {
       mobile: values.mobile || "",
       date: new Date().toISOString(),
       token: token,
+      status: "pending",
+      cancelled: false,
+      cancelReason: ""
     };
 
     try {

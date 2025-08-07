@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+// ✅ Extended type for status + cancelReason
 type Appointment = {
   id: string;
   doctorId: string | number;
@@ -11,6 +12,8 @@ type Appointment = {
   mobile: string;
   date: string;
   token: string;
+  status?: "pending" | "confirmed" | "cancelled"; // ✅ added
+  cancelReason?: string; // ✅ added
 };
 
 type Doctor = {
@@ -79,14 +82,21 @@ export default function AppointmentsPage() {
     }
 
     try {
-      console.log(`Cancelling appointment ${selectedAppt.id} reason:`, cancelReason);
+      // ✅ Change from DELETE to PATCH to update status + reason
       const res = await fetch(
         `https://json-backend-8zn4.onrender.com/appointments/${selectedAppt.id}`,
         {
-          method: "DELETE",
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "cancelled",
+            cancelReason: cancelReason.trim(),
+          }),
         }
       );
-      if (!res.ok) throw new Error("Delete failed");
+      if (!res.ok) throw new Error("Failed to cancel appointment");
 
       await fetchAppointments();
       setShowCancelModal(false);
@@ -135,15 +145,36 @@ export default function AppointmentsPage() {
                   <p className="text-xs text-gray-500">
                     Date: {new Date(appt.date).toLocaleString()}
                   </p>
+
+                  {/* ✅ Status label */}
+                  {appt.status === "pending" && (
+                    <p className="text-yellow-600 text-sm font-medium mt-1">
+                      Pending confirmation
+                    </p>
+                  )}
+                  {appt.status === "confirmed" && (
+                    <p className="text-green-600 text-sm font-medium mt-1">
+                      Confirmed
+                    </p>
+                  )}
+                  {appt.status === "cancelled" && (
+                    <p className="text-red-500 text-sm font-medium mt-1">
+                      Cancelled: {appt.cancelReason || "No reason given"}
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-start">
-                  <button
-                    onClick={() => requestCancel(appt)}
-                    className="text-red-500 font-semibold underline text-sm ml-4"
-                  >
-                    Cancel
-                  </button>
-                </div>
+
+                {/* ✅ Show cancel only if not already cancelled */}
+                {appt.status !== "cancelled" && (
+                  <div className="flex items-start">
+                    <button
+                      onClick={() => requestCancel(appt)}
+                      className="text-red-500 font-semibold underline text-sm ml-4"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

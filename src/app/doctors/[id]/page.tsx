@@ -14,6 +14,8 @@ type Appointment = {
   mobile: string;
   date: string;
   token: string;
+  status: "pending" | "confirmed" | "cancelled";
+  cancelReason?: string;
 };
 
 type Doctor = {
@@ -31,10 +33,7 @@ type Doctor = {
 export default function DoctorDashboardTempOnPatientsRoute() {
   const params = useParams();
   const router = useRouter();
-
-  // normalize param to string
-  const rawId = params?.id;
-  const doctorId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
+  const doctorId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
 
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -48,11 +47,7 @@ export default function DoctorDashboardTempOnPatientsRoute() {
 
   const fetchDoctor = async () => {
     try {
-      const res = await fetch(
-        `https://json-backend-8zn4.onrender.com/doctors?id=${encodeURIComponent(
-          String(doctorId)
-        )}`
-      );
+      const res = await fetch(`https://json-backend-8zn4.onrender.com/doctors?id=${doctorId}`);
       const data = await res.json();
       if (data && data.length > 0) setDoctor(data[0]);
     } catch (e) {
@@ -63,11 +58,7 @@ export default function DoctorDashboardTempOnPatientsRoute() {
 
   const fetchAppointments = async () => {
     try {
-      const res = await fetch(
-        `https://json-backend-8zn4.onrender.com/appointments?doctorId=${encodeURIComponent(
-          String(doctorId)
-        )}`
-      );
+      const res = await fetch(`https://json-backend-8zn4.onrender.com/appointments?doctorId=${doctorId}`);
       if (!res.ok) throw new Error("Failed to fetch appointments");
       const data: Appointment[] = await res.json();
       setAppointments(
@@ -75,7 +66,7 @@ export default function DoctorDashboardTempOnPatientsRoute() {
       );
     } catch (e) {
       console.error("Fetch appointments error:", e);
-      setError((prev) => prev || "Unable to load appointments.");
+      setError("Unable to load appointments.");
     }
   };
 
@@ -84,16 +75,6 @@ export default function DoctorDashboardTempOnPatientsRoute() {
       setLoading(false)
     );
   }, [doctorId]);
-
-  const upcomingAppointments = appointments.filter(
-    (a) => new Date(a.date).getTime() >= Date.now()
-  );
-  const nextAppointment = upcomingAppointments[0] || null;
-
-  const filteredAppointments = appointments.filter((a) => {
-    if (!search.trim()) return true;
-    return a.patientName.toLowerCase().includes(search.toLowerCase());
-  });
 
   const requestCancel = (appt: Appointment) => {
     setSelectedAppt(appt);
@@ -108,12 +89,16 @@ export default function DoctorDashboardTempOnPatientsRoute() {
       return;
     }
     try {
-      await fetch(
-        `https://json-backend-8zn4.onrender.com/appointments/${selectedAppt.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      await fetch(`https://json-backend-8zn4.onrender.com/appointments/${selectedAppt.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "cancelled",
+          cancelReason: cancelReason.trim(),
+        }),
+      });
       await fetchAppointments();
       setShowCancelModal(false);
       setSelectedAppt(null);
@@ -123,9 +108,37 @@ export default function DoctorDashboardTempOnPatientsRoute() {
     }
   };
 
+  const confirmAppointment = async (appt: Appointment) => {
+    try {
+      await fetch(`https://json-backend-8zn4.onrender.com/appointments/${appt.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "confirmed",
+        }),
+      });
+      await fetchAppointments();
+    } catch (e) {
+      console.error("Confirm failed:", e);
+      alert("Confirm failed. Try again.");
+    }
+  };
+
   const handleLogout = () => {
     router.push("/");
   };
+
+  const filteredAppointments = appointments.filter((a) => {
+    if (!search.trim()) return true;
+    return a.patientName.toLowerCase().includes(search.toLowerCase());
+  });
+  
+  const upcomingAppointments = appointments
+  .filter((a) => new Date(a.date).getTime() >= Date.now())
+  .filter((a) => a.status !== "cancelled");
+const nextAppointment = upcomingAppointments[0] || null;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
@@ -283,9 +296,12 @@ export default function DoctorDashboardTempOnPatientsRoute() {
                         {new Date(appt.date).toLocaleString()}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-sm text-green-600 font-semibold">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-green-600">
                         Token: {appt.token}
+                      </p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        Status: {appt.status}
                       </p>
                     </div>
                   </div>
@@ -293,14 +309,29 @@ export default function DoctorDashboardTempOnPatientsRoute() {
                     Age: {appt.age} | Gender: {appt.gender}
                   </p>
                   <p className="text-sm">Mobile: {appt.mobile || "N/A"}</p>
+                  {appt.status === "cancelled" && appt.cancelReason && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Cancel Reason: {appt.cancelReason}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-2 ml-4">
-                  <button
-                    onClick={() => requestCancel(appt)}
-                    className="text-red-500 text-sm font-semibold underline"
-                  >
-                    Cancel
-                  </button>
+                  {appt.status === "pending" && (
+                    <button
+                      onClick={() => confirmAppointment(appt)}
+                      className="text-green-600 text-sm font-semibold underline"
+                    >
+                      Confirm
+                    </button>
+                  )}
+                  {appt.status !== "cancelled" && (
+                    <button
+                      onClick={() => requestCancel(appt)}
+                      className="text-red-500 text-sm font-semibold underline"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -359,7 +390,7 @@ export default function DoctorDashboardTempOnPatientsRoute() {
         </div>
       )}
 
-      {/* About Drawer */}
+        {/* About Drawer */}
       {showAbout && (
         <div className="fixed inset-0 flex">
           <div className="w-full max-w-md bg-white shadow-xl p-6 overflow-auto">
